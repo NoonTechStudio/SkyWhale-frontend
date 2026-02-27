@@ -6,6 +6,8 @@ const ProtectedRoute = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
+    console.log('ProtectedRoute - Current path:', window.location.pathname);
+    console.log('ProtectedRoute - Token:', !!localStorage.getItem('skywhale_token'));
     const checkAuth = async () => {
       const token = localStorage.getItem('skywhale_token');
       const userStr = localStorage.getItem('skywhale_user');
@@ -44,6 +46,8 @@ const ProtectedRoute = ({ children }) => {
         setIsAuthenticated(false);
       }
     };
+
+
     
     checkAuth();
   }, [location]);
