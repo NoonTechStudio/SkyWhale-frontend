@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, LogIn, AlertCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Lock, Mail, LogIn, AlertCircle } from "lucide-react";
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5001/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
@@ -26,15 +26,19 @@ const AdminLogin = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        throw new Error(data.error || "Login failed");
       }
 
       // Save token and user info
-      localStorage.setItem('skywhale_token', data.token);
-      localStorage.setItem('skywhale_user', JSON.stringify(data.user));
-      
+      localStorage.setItem("skywhale_token", data.token);
+      localStorage.setItem("skywhale_user", JSON.stringify(data.user));
+
+      // Redirect to admin dashboard or the page they tried to visit
+      const from = location.state?.from?.pathname || "/admin";
+      navigate(from, { replace: true });
+
       // Redirect to admin dashboard
-      navigate('/admin');
+      navigate("/admin");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -51,7 +55,9 @@ const AdminLogin = () => {
             <Lock className="text-white" size={28} />
           </div>
           <h1 className="text-3xl font-black text-slate-900">SkyWhale Admin</h1>
-          <p className="text-slate-600 mt-2">Sign in to manage client business cards</p>
+          <p className="text-slate-600 mt-2">
+            Sign in to manage client business cards
+          </p>
         </div>
 
         {/* Login Card */}
@@ -130,7 +136,9 @@ const AdminLogin = () => {
 
         {/* Demo Credentials (remove in production) */}
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <p className="text-sm font-semibold text-blue-800 mb-1">Demo Credentials:</p>
+          <p className="text-sm font-semibold text-blue-800 mb-1">
+            Demo Credentials:
+          </p>
           <p className="text-sm text-blue-700">Email: skyywhale@gmail.com</p>
           <p className="text-sm text-blue-700">Password: [Your Password]</p>
         </div>

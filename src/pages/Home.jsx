@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import {
   Smartphone,
   Share2,
@@ -134,92 +135,138 @@ const Home = () => {
 
       {/* Navbar */}
       <nav
-        className={`fixed w-full z-50 mb-10 transition-all duration-500 ${
+        className={`fixed w-full z-50 transition-all duration-500 ${
           scrollY > 50
-            ? "bg-slate-900/95 backdrop-blur-md py-8 border-b mb-5 border-slate-800 shadow-xl"
-            : "bg-transparent py-8"
+            ? "bg-slate-950/98 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/20 py-3"
+            : "bg-transparent py-5"
         } ${navVisible ? "translate-y-0" : "-translate-y-full"}`}
       >
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between">
-            {/* Brand/Logo Area - Prominent Circular Logo */}
-            <div className="flex items-center gap-6 group cursor-pointer relative z-[60]">
-              <div
-                className={`relative transition-all duration-500 ${scrollY > 50 ? "scale-130" : "scale-150"}`}
-              >
-                <div className="absolute -inset-2 bg-blue-500/20 rounded-full blur-xl group-hover:bg-blue-400/30 transition duration-500"></div>
+            {/* Brand / Logo */}
+            <div
+              className="flex items-center gap-3 cursor-pointer group"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              <div className="relative">
+                <div className="absolute -inset-1.5 bg-blue-500/25 rounded-full blur-lg group-hover:bg-blue-400/40 transition-all duration-500" />
                 <img
                   src={Logo}
                   alt="SkyWhale Logo"
-                  className="relative h-16 w-16 md:h-20 md:w-20 object-contain bg-white rounded-full border-2 border-blue-500/30 shadow-2xl p-1"
+                  className="relative h-10 w-10 md:h-12 md:w-12 object-contain bg-white rounded-full border border-blue-400/30 shadow-xl p-0.5"
                 />
               </div>
-              <div className="flex flex-col">
-                <span className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-400 tracking-tight">
+              <div className="flex flex-col leading-none">
+                <span className="text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-blue-400 tracking-tight">
                   SkyWhale
                 </span>
-                <span className="text-[10px] uppercase tracking-[0.2em] text-blue-300 font-black">
-                  Scaling Your Local Business, Globally.
+                <span className="text-[9px] uppercase tracking-[0.18em] text-blue-400/80 font-semibold mt-0.5">
+                  Scale Your Business
                 </span>
               </div>
             </div>
 
-            {/* Desktop Navigation - Modern Minimalist */}
-            <div className="hidden lg:flex items-center gap-10">
-              {["Features", "Packages", "Testimonials", "Contact"].map(
-                (item) => (
-                  <a
-                    key={item}
-                    href={`#${item.toLowerCase()}`}
-                    className="text-sm font-bold text-slate-400 hover:text-blue-700 transition-all relative group"
-                  >
-                    {item}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all group-hover:w-full"></span>
-                  </a>
-                ),
-              )}
+            {/* Desktop Nav Links */}
+            <div className="hidden lg:flex items-center gap-1">
+              {[
+                { label: "Features", href: "#features" },
+                { label: "How It Works", href: "#how-it-works" },
+                { label: "Packages", href: "#pricing" },
+                { label: "Testimonials", href: "#testimonials" },
+              ].map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="relative px-4 py-2 text-sm font-semibold text-slate-400 hover:text-white transition-all duration-300 rounded-lg hover:bg-white/5 group"
+                >
+                  {item.label}
+                  <span className="absolute bottom-1 left-4 right-4 h-px bg-gradient-to-r from-blue-500 to-indigo-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+                </a>
+              ))}
             </div>
 
-            {/* Mobile Toggle Button */}
+            {/* Desktop CTA */}
+            <div className="hidden lg:flex items-center gap-3">
+              <a
+                href="/order"
+                className="px-5 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-700/30 hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105"
+              >
+                Proceed with Form →
+              </a>
+            </div>
+
+            {/* Mobile Toggle */}
             <button
-              className="lg:hidden relative z-[60] p-3 text-white bg-slate-800/50 rounded-full backdrop-blur-md border border-slate-700 hover:bg-slate-700 transition-all"
+              className="lg:hidden relative z-[60] p-2.5 text-white bg-white/8 rounded-xl backdrop-blur-md border border-white/10 hover:bg-white/15 transition-all"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>
 
-        {/* Improved Full-Screen Mobile Navigation Menu */}
+        {/* Mobile Full-Screen Menu */}
         <div
-          className={`fixed inset-0 z-[100] bg-slate-950/98 backdrop-blur-2xl lg:hidden transition-all duration-500 ease-in-out ${
+          className={`fixed inset-0 z-[100] bg-slate-950/99 backdrop-blur-2xl lg:hidden flex flex-col items-center justify-center transition-all duration-500 ease-in-out ${
             mobileMenuOpen
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div className="pt-32 bg-slate-950/98 ">
-            {" "}
-            {/* Added padding-top */}
-            <div className="flex flex-col items-center justify-center h-full space-y-8">
-              {["Features", "Packages", "Testimonials", "Contact"].map(
-                (item, i) => (
-                  <a
-                    key={item}
-                    href={`#${item.toLowerCase()}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`text-3xl font-black text-white hover:text-blue-400 transition-all transform ${
-                      mobileMenuOpen
-                        ? "translate-y-0 opacity-100"
-                        : "translate-y-10 opacity-0"
-                    }`}
-                    style={{ transitionDelay: `${i * 100}ms` }}
-                  >
-                    {item}
-                  </a>
-                ),
-              )}
-            </div>
+          {/* Close button */}
+          <button
+            className="absolute top-6 right-6 p-2.5 text-white bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <X size={22} />
+          </button>
+
+          {/* Logo in mobile menu */}
+          <div className="absolute top-6 left-6 flex items-center gap-2">
+            <img
+              src={Logo}
+              alt="SkyWhale"
+              className="h-9 w-9 object-contain bg-white rounded-full p-0.5 border border-blue-400/30"
+            />
+            <span className="text-white font-black text-lg">SkyWhale</span>
+          </div>
+
+          {/* Nav items */}
+          <div className="flex flex-col items-center gap-3 w-full px-8">
+            {[
+              { label: "Features", href: "#features" },
+              { label: "How It Works", href: "#how-it-works" },
+              { label: "Packages", href: "#pricing" },
+              { label: "Testimonials", href: "#testimonials" },
+              { label: "Contact", href: "#contact" },
+            ].map((item, i) => (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`w-full text-center py-4 text-xl font-black text-slate-300 hover:text-white border border-white/8 rounded-2xl hover:bg-white/5 hover:border-blue-500/40 transition-all duration-300 ${
+                  mobileMenuOpen
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-6 opacity-0"
+                }`}
+                style={{ transitionDelay: `${i * 70}ms` }}
+              >
+                {item.label}
+              </a>
+            ))}
+
+            <a
+              href="#how-it-works"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`w-full text-center py-4 text-xl font-black text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg shadow-blue-700/30 transition-all duration-300 mt-2 ${
+                mobileMenuOpen
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-6 opacity-0"
+              }`}
+              style={{ transitionDelay: `${5 * 70}ms` }}
+            >
+              Proceed with Form →
+            </a>
           </div>
         </div>
       </nav>
@@ -368,10 +415,9 @@ const Home = () => {
           <div className="flex justify-center gap-4 flex-wrap mb-12">
             <button
               onClick={() => {
-                const pricingSection = document.getElementById("pricing");
-                if (pricingSection) {
-                  pricingSection.scrollIntoView({ behavior: "smooth" });
-                }
+                document
+                  .getElementById("pricing")
+                  ?.scrollIntoView({ behavior: "smooth" });
               }}
               className="group relative px-10 py-5 bg-linear-to-r from-blue-600 to-indigo-600 rounded-2xl font-bold text-lg text-white shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40 transition-all hover:scale-105"
             >
@@ -694,10 +740,13 @@ const Home = () => {
                   </div>
 
                   {/* CTA Button */}
-                  <button className="mt-4 w-full py-4 bg-white rounded-xl font-black text-green-600 border-2 border-green-300 hover:bg-green-50 transition-all hover:scale-105 shadow-md flex items-center justify-center gap-2">
-                    Get Started Now
+                  <Link
+                    to="/order"
+                    className="mt-4 w-full py-4 bg-white rounded-xl font-black text-green-600 border-2 border-green-300 hover:bg-green-50 transition-all hover:scale-105 shadow-md flex items-center justify-center gap-2"
+                  >
+                    Proceed with Form
                     <ArrowRight size={20} />
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -904,15 +953,18 @@ const Home = () => {
 
             {/* CTA Button */}
             <div className="mt-12 flex justify-center">
-              <button className="group relative px-10 py-5 bg-white rounded-2xl font-black text-lg text-blue-600 shadow-2xl hover:shadow-white/20 transition-all hover:scale-105">
+              <Link
+                to="/order"
+                className="group relative px-10 py-5 bg-white rounded-2xl font-black text-lg text-blue-600 shadow-2xl hover:shadow-white/20 transition-all hover:scale-105"
+              >
                 <span className="flex items-center gap-3">
-                  शुरू करें (Get Started)
+                  शुरू करें — Proceed with Form
                   <ArrowRight
                     className="group-hover:translate-x-2 transition-transform"
                     size={24}
                   />
                 </span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -946,13 +998,13 @@ const Home = () => {
                 gradient: "from-purple-500 to-pink-500",
                 benefit: "3x faster sharing",
               },
-              {
-                icon: <Globe />,
-                title: "Zero Technical Hassle",
-                desc: "No domain purchase, no hosting setup, no website maintenance. We handle everything.",
-                gradient: "from-indigo-500 to-blue-500",
-                benefit: "Save ₹5,000+ yearly",
-              },
+              // {
+              //   icon: <Globe />,
+              //   title: "Zero Technical Hassle",
+              //   desc: "No domain purchase, no hosting setup, no website maintenance. We handle everything.",
+              //   gradient: "from-indigo-500 to-blue-500",
+              //   benefit: "Save ₹5,000+ yearly",
+              // },
               {
                 icon: <Layout />,
                 title: "Complete Business Showcase",
@@ -981,20 +1033,20 @@ const Home = () => {
                 gradient: "from-pink-500 to-rose-500",
                 benefit: "Unified presence",
               },
-              {
-                icon: <Award />,
-                title: "Trust Badges & Reviews",
-                desc: "Display certifications, awards, and customer testimonials to build instant credibility.",
-                gradient: "from-yellow-500 to-orange-500",
-                benefit: "Increased trust",
-              },
-              {
-                icon: <BarChart3 />,
-                title: "Analytics Dashboard",
-                desc: "See who's viewing your card, which sections get attention, and track your growth.",
-                gradient: "from-cyan-500 to-blue-500",
-                benefit: "Data-driven decisions",
-              },
+              // {
+              //   icon: <Award />,
+              //   title: "Trust Badges & Reviews",
+              //   desc: "Display certifications, awards, and customer testimonials to build instant credibility.",
+              //   gradient: "from-yellow-500 to-orange-500",
+              //   benefit: "Increased trust",
+              // },
+              // {
+              //   icon: <BarChart3 />,
+              //   title: "Analytics Dashboard",
+              //   desc: "See who's viewing your card, which sections get attention, and track your growth.",
+              //   gradient: "from-cyan-500 to-blue-500",
+              //   benefit: "Data-driven decisions",
+              // },
             ].map((feature, i) => (
               <div key={i} className="group relative">
                 <div
@@ -1374,9 +1426,6 @@ const Home = () => {
                 </ul>
 
                 <div className="space-y-3">
-                  <button className="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all hover:scale-105 shadow-lg">
-                    Choose Aura
-                  </button>
                   <button
                     onClick={() => {
                       setSelectedTemplate("aura");
@@ -1464,9 +1513,6 @@ const Home = () => {
                 </ul>
 
                 <div className="space-y-3">
-                  <button className="w-full py-4 rounded-xl bg-white text-blue-600 hover:bg-blue-50 font-black transition-all hover:scale-105 shadow-xl">
-                    Choose Vertex
-                  </button>
                   <button
                     onClick={() => {
                       setSelectedTemplate("vertex");
@@ -1563,9 +1609,6 @@ const Home = () => {
                 </ul>
 
                 <div className="space-y-3">
-                  <button className="w-full py-4 rounded-xl bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-black transition-all hover:scale-105 shadow-lg">
-                    Choose Nexus
-                  </button>
                   <button
                     onClick={() => {
                       setSelectedTemplate("nexus");
@@ -1582,7 +1625,7 @@ const Home = () => {
           </div>
 
           {/* Pricing Add-ons */}
-          <div className="max-w-5xl mx-auto mt-16">
+          {/* <div className="max-w-5xl mx-auto mt-16">
             <h3 className="text-3xl font-black text-center mb-8 text-slate-900">
               Optional Add-ons
             </h3>
@@ -1633,7 +1676,7 @@ const Home = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Money-back Guarantee */}
           <div className="max-w-3xl mx-auto mt-16 p-8 bg-linear-to-r from-green-50 to-emerald-50 rounded-3xl border-2 border-green-300 text-center shadow-xl">
@@ -1820,8 +1863,11 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Final Section */}
-      <section className="py-24 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 relative overflow-hidden">
+      {/* How It Works + Final CTA Section */}
+      <section
+        id="how-it-works"
+        className="py-24 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 relative overflow-hidden"
+      >
         <div className="absolute inset-0 opacity-10">
           <div
             className="absolute inset-0"
@@ -1832,178 +1878,244 @@ const Home = () => {
             }}
           />
         </div>
-        <div className="container mx-auto text-center relative z-10 max-w-5xl">
-          <h2 className="text-5xl md:text-7xl font-black mb-8 text-white leading-tight">
-            Transform Your
-            <br />
-            Business Presence
-          </h2>
-          {/* <p className="text-2xl md:text-3xl text-blue-50 mb-8 font-medium leading-relaxed">
-      Over 500 Indian businesses are already growing with SkyWhale
-    </p> */}
-          <div className="grid md:grid-cols-3 gap-8 mt-16 text-white">
-            <div className="flex flex-col items-center">
-              <div className="text-5xl font-black mb-3">24hrs</div>
-              <p className="text-xl text-blue-100 font-medium">Quick Setup</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="text-5xl font-black mb-3">24/7</div>
-              <p className="text-xl text-blue-100 font-medium">
-                Expert Support
-              </p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="text-5xl font-black mb-3">No CC</div>
-              <p className="text-xl text-blue-100 font-medium">
-                Required to Start
-              </p>
-            </div>
+        <div className="container mx-auto relative z-10 max-w-5xl">
+          {/* Heading */}
+          <div className="text-center mb-16">
+            <p className="text-blue-200 font-bold uppercase tracking-widest text-sm mb-3">
+              Simple & Transparent
+            </p>
+            <h2 className="text-4xl md:text-6xl font-black text-white leading-tight mb-4">
+              Your Digital Card,
+              <br />
+              Ready in 24 Hours
+            </h2>
+            <p className="text-blue-100 text-lg md:text-xl font-medium max-w-2xl mx-auto">
+              No tech knowledge needed. We handle everything — you just share
+              your details and we make you live.
+            </p>
+          </div>
+
+          {/* Steps */}
+          <div className="grid md:grid-cols-4 gap-6 mb-16">
+            {[
+              {
+                step: "01",
+                icon: "📋",
+                title: "Fill the Form",
+                desc: "Share your business name, contact info, services, photos — everything you want on your digital card.",
+              },
+              {
+                step: "02",
+                icon: "🎨",
+                title: "Pick a Template",
+                desc: "Choose the design that best suits your business from our ready-made templates.",
+              },
+              {
+                step: "03",
+                icon: "💸",
+                title: "Pay via GPay",
+                desc: "Send the payment to our GPay number and share a screenshot on WhatsApp. That's it!",
+              },
+              {
+                step: "04",
+                icon: "🚀",
+                title: "Go Live!",
+                desc: "We build your digital card and send you the link within 24 hours. Share it anywhere!",
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 text-white flex flex-col items-center text-center"
+              >
+                <div className="text-4xl mb-3">{item.icon}</div>
+                <div className="text-xs font-black text-blue-200 tracking-widest uppercase mb-2">
+                  Step {item.step}
+                </div>
+                <h3 className="text-lg font-black mb-2">{item.title}</h3>
+                <p className="text-blue-100 text-sm font-medium leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="text-center">
+            <a
+              href="#how-it-works"
+              className="inline-flex items-center gap-3 bg-white text-blue-600 font-black text-lg px-10 py-4 rounded-full shadow-2xl hover:shadow-white/30 hover:scale-105 transition-all duration-300"
+            >
+              Fill the Form & Get Started <ArrowRight size={20} />
+            </a>
+            <p className="text-blue-200 text-sm font-medium mt-4">
+              No credit card required &nbsp;·&nbsp; Setup in 24 hrs
+              &nbsp;·&nbsp; 24/7 Support
+            </p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
+      {/* Footer */}
       <footer
         id="contact"
-        className="py-16 px-6 bg-slate-900 text-white relative"
+        className="relative py-20 px-6 bg-gradient-to-b from-slate-50 to-blue-50 overflow-hidden"
       >
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            {/* Brand */}
-            <div className="md:col-span-1">
-              <img src={Logo} alt="SkyWhale Logo" className="w-32 mb-5" />
-              <p className="text-slate-400 text-sm font-medium mb-4">
-                Empowering Indian businesses with professional digital presence.
-              </p>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">
-                By Noon Tech Studio
-              </p>
-            </div>
+        {/* Decorative background rings */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-[600px] h-[600px] rounded-full border border-blue-100 opacity-60" />
+          <div className="absolute w-[400px] h-[400px] rounded-full border border-blue-200 opacity-50" />
+          <div className="absolute w-[200px] h-[200px] rounded-full border border-blue-300 opacity-40" />
+        </div>
 
+        <div className="container mx-auto relative z-10 max-w-5xl">
+          {/* Center Logo Block */}
+          <div className="flex flex-col items-center text-center mb-14">
+            <div className="relative mb-5">
+              <div className="absolute -inset-4 bg-gradient-to-br from-blue-200 to-indigo-200 rounded-full blur-2xl opacity-50" />
+              <img
+                src={Logo}
+                alt="SkyWhale Logo"
+                className="relative w-24 h-24 rounded-full border-4 border-white shadow-2xl shadow-blue-200 object-contain bg-white p-1"
+              />
+            </div>
+            <h2 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-500 tracking-tight mb-1">
+              SkyWhale
+            </h2>
+            <p className="text-[11px] uppercase tracking-[0.25em] text-blue-400 font-bold mb-4">
+              Scale Your Local Business, Globally
+            </p>
+            <p className="text-slate-500 text-sm font-medium max-w-sm leading-relaxed">
+              Empowering Indian businesses with beautiful, affordable digital
+              presence — set up in 24 hours.
+            </p>
+
+            {/* CTA in footer */}
+            <Link
+              to="/order"
+              className="mt-6 inline-flex items-center gap-2 px-7 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm rounded-full shadow-lg shadow-blue-300/40 hover:scale-105 transition-all"
+            >
+              Get Your Digital Card →
+            </Link>
+          </div>
+
+          {/* 3-column info grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-14 text-center md:text-left">
             {/* Quick Links */}
             <div>
-              <h4 className="font-black text-white mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-slate-400 text-sm font-medium">
-                <li>
-                  <a
-                    href="#features"
-                    className="hover:text-blue-400 transition-colors"
-                  >
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#pricing"
-                    className="hover:text-blue-400 transition-colors"
-                  >
-                    Packages
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#testimonials"
-                    className="hover:text-blue-400 transition-colors"
-                  >
-                    Testimonials
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Portfolio
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div>
-              <h4 className="font-black text-white mb-4">Support</h4>
-              <ul className="space-y-2 text-slate-400 text-sm font-medium">
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Help Center
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Contact Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Terms & Conditions
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
+              <h4 className="font-black text-slate-800 text-sm uppercase tracking-widest mb-4 flex items-center justify-center md:justify-start gap-2">
+                <span className="w-4 h-0.5 bg-blue-400 inline-block" />
+                Quick Links
+              </h4>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "Features", href: "#features" },
+                  { label: "Packages", href: "#pricing" },
+                  { label: "How It Works", href: "#how-it-works" },
+                  { label: "Testimonials", href: "#testimonials" },
+                ].map(({ label, href }) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors hover:translate-x-1 inline-block"
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
             {/* Contact */}
             <div>
-              <h4 className="font-black text-white mb-4">Get in Touch</h4>
-              <ul className="space-y-3 text-slate-400 text-sm font-medium">
-                <li className="flex items-center gap-2">
-                  <Mail size={16} className="text-blue-400" />
+              <h4 className="font-black text-slate-800 text-sm uppercase tracking-widest mb-4 flex items-center justify-center md:justify-start gap-2">
+                <span className="w-4 h-0.5 bg-blue-400 inline-block" />
+                Get in Touch
+              </h4>
+              <ul className="space-y-3">
+                <li>
                   <a
-                    href="mailto:hello@onepagerplus.in"
-                    className="hover:text-blue-400 transition-colors"
+                    href="mailto:skyywhale@gmail.com"
+                    className="flex items-center justify-center md:justify-start gap-2 text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors"
                   >
-                    hello@skywhale.in
+                    <Mail size={14} className="text-blue-400 shrink-0" />
+                    skyywhale@gmail.com
                   </a>
                 </li>
-                <li className="flex items-center gap-2">
-                  <Phone size={16} className="text-blue-400" />
+                <li>
                   <a
-                    href="tel:+919876543210"
-                    className="hover:text-blue-400 transition-colors"
+                    href="tel:+919316499964"
+                    className="flex items-center justify-center md:justify-start gap-2 text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors"
                   >
-                    +91 98765 43210
+                    <Phone size={14} className="text-blue-400 shrink-0" />
+                    +91 93164 99964
                   </a>
                 </li>
-                <li className="flex items-center gap-2">
-                  <MapPin size={16} className="text-blue-400" />
-                  <span>Vadodara, Gujarat</span>
+                <li className="flex items-center justify-center md:justify-start gap-2 text-slate-500 text-sm font-medium">
+                  <MapPin size={14} className="text-blue-400 shrink-0" />
+                  Vadodara, Gujarat
                 </li>
               </ul>
-              <div className="flex gap-3 mt-4">
-                <a
-                  href="#"
-                  className="p-2 bg-slate-800 rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  <Instagram size={18} />
-                </a>
-                <a
-                  href="#"
-                  className="p-2 bg-slate-800 rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  <Facebook size={18} />
-                </a>
-                <a
-                  href="#"
-                  className="p-2 bg-slate-800 rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  <Twitter size={18} />
-                </a>
+            </div>
+
+            {/* Support + Social */}
+            <div>
+              <h4 className="font-black text-slate-800 text-sm uppercase tracking-widest mb-4 flex items-center justify-center md:justify-start gap-2">
+                <span className="w-4 h-0.5 bg-blue-400 inline-block" />
+                Support
+              </h4>
+              <ul className="space-y-2.5 mb-6">
+                {[
+                  "Help Center",
+                  "Contact Us",
+                  "Terms & Conditions",
+                  "Privacy Policy",
+                ].map((item) => (
+                  <li key={item}>
+                    <a
+                      href="#"
+                      className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors"
+                    >
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Social Icons */}
+              <div className="flex gap-2 justify-center md:justify-start">
+                {[
+                  { Icon: Instagram, href: "#", color: "hover:bg-pink-500" },
+                  { Icon: Facebook, href: "#", color: "hover:bg-blue-600" },
+                  { Icon: Twitter, href: "#", color: "hover:bg-sky-500" },
+                ].map(({ Icon, href, color }, i) => (
+                  <a
+                    key={i}
+                    href={href}
+                    className={`w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-500 hover:text-white ${color} hover:border-transparent transition-all hover:scale-110`}
+                  >
+                    <Icon size={15} />
+                  </a>
+                ))}
               </div>
             </div>
           </div>
 
-          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-slate-400 text-sm">
-              © 2025 SkyWhale. All rights reserved.
+          {/* Bottom bar */}
+          <div className="border-t border-blue-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-3">
+            <p className="text-slate-400 text-xs font-medium">
+              © 2026 SkyWhale. All rights reserved.
+            </p>
+            <p className="text-slate-400 text-xs font-medium">
+              By Noon Tech Studio
             </p>
             <a
-              href="https://www.zynteqtechnologies.com"
-              className="text-blue-400 hover:text-blue-300 font-bold text-sm underline transition-colors"
+              href="https://www.noontechstudio.com"
               target="_blank"
               rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-600 font-bold text-xs underline transition-colors"
             >
-              Powered by Noon Tech Studio
+              noontechstudio.com
             </a>
           </div>
         </div>

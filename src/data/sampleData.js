@@ -1,5 +1,4 @@
 import Logo from "../assets/Images/DentalLogo.png";
-//import PhonePe from '../assets/Images/Pay.jpg';
 
 // Gallery images
 import img1 from "../assets/Images/img1.jpg";
@@ -9,76 +8,92 @@ import img4 from "../assets/Images/img4.jpg";
 import img5 from "../assets/Images/img5.jpeg";
 import img6 from "../assets/Images/img6.jpg";
 
-// src/data/sampleData.js
-
 export const sampleClient = {
-  businessLogo: Logo,
+  // ── Basic Info ─────────────────────────────────────────────────────────────
   businessName: "Elite Dental & Implant Centre",
+  businessLogo: Logo,
   ownerName: "Dr. Aravind Swamy",
   ownerTitle: "MDS - Oral & Maxillofacial Surgeon",
   tagline:
     "Experience painless dentistry with technology built for your comfort. We provide a gentle, stress-free environment that prioritizes your well-being over traditional dental anxiety.",
-  phone: "+91 98765 43210",
-  whatsapp: "+91 98765 43210",
-  email: "arvindswamy@gmail.com",
-  address: "A-201, Platinum Heights, Near Akshar Chowk, Vadodara, Gujarat",
-  services: [
+  businessType: "service", // "service" | "product"
+
+  // ── Contact (new nested structure expected by all three templates) ──────────
+  contact: {
+    phone: "+91 98765 43210",
+    whatsapp: "+91 98765 43210",
+    email: "arvindswamy@gmail.com",
+    address: "A-201, Platinum Heights, Near Akshar Chowk, Vadodara, Gujarat",
+    googleMapsUrl: "https://maps.app.goo.gl/example",
+
+    // Working hours — array of { day, open, close, closed }
+    openingHours: [
+      { day: "Monday", open: "10:00", close: "18:30", closed: false },
+      { day: "Tuesday", open: "10:00", close: "18:30", closed: false },
+      { day: "Wednesday", open: "10:00", close: "18:30", closed: false },
+      { day: "Thursday", open: "10:00", close: "18:30", closed: false },
+      { day: "Friday", open: "10:00", close: "18:30", closed: false },
+      { day: "Saturday", open: "10:00", close: "14:00", closed: false },
+      { day: "Sunday", open: "00:00", close: "00:00", closed: true },
+    ],
+  },
+
+  // ── Services / Items (templates read clientData.items || clientData.services)
+  items: [
     {
       name: "Digital Smile Designing",
-      desc: "Get a preview of your perfect smile with our advanced 3D scanning.",
+      description:
+        "Get a preview of your perfect smile with our advanced 3D scanning.",
+      price: null,
     },
     {
       name: "Dental Implants",
-      desc: "Permanent and natural-looking tooth replacements.",
+      description: "Permanent and natural-looking tooth replacements.",
+      price: null,
     },
     {
       name: "Invisible Aligners",
-      desc: "Straighten teeth without braces using clear, comfortable aligners.",
+      description:
+        "Straighten teeth without braces using clear, comfortable aligners.",
+      price: null,
     },
     {
       name: "Laser Teeth Whitening",
-      desc: "Professional treatment to brighten your smile up to 8 shades.",
+      description:
+        "Professional treatment to brighten your smile up to 8 shades.",
+      price: null,
     },
     {
       name: "Painless Root Canal",
-      desc: "Save your natural teeth with modern, discomfort-free endodontic care.",
+      description:
+        "Save your natural teeth with modern, discomfort-free endodontic care.",
+      price: null,
     },
     {
       name: "Pediatric Dentistry",
-      desc: "Gentle and fun dental care designed specifically for our youngest patients.",
+      description:
+        "Gentle and fun dental care designed specifically for our youngest patients.",
+      price: null,
     },
     {
       name: "Full Mouth Rehabilitation",
-      desc: "Comprehensive restorative treatments to regain your bite and oral health.",
+      description:
+        "Comprehensive restorative treatments to regain your bite and oral health.",
+      price: null,
     },
   ],
+
+  // ── Gallery ────────────────────────────────────────────────────────────────
   gallery: [
-    {
-      url: img1,
-      caption: "Modern Dental Chair",
-    },
-    {
-      url: img4,
-      caption: "Digital X-Ray Room",
-    },
-    {
-      url: img3,
-      caption: "Dental Consultation Area",
-    },
-    {
-      url: img2,
-      caption: "Happy Patient",
-    },
-    {
-      url: img5,
-      caption: "Patient Waiting Lounge",
-    },
-    {
-      url: img6,
-      caption: "Dental Implant",
-    },
+    { url: img1, caption: "Modern Dental Chair" },
+    { url: img4, caption: "Digital X-Ray Room" },
+    { url: img3, caption: "Dental Consultation Area" },
+    { url: img2, caption: "Happy Patient" },
+    { url: img5, caption: "Patient Waiting Lounge" },
+    { url: img6, caption: "Dental Implant" },
   ],
-  // New Section for Vertex & Nexus
+
+  // ── Testimonials (Vertex & Nexus) ──────────────────────────────────────────
   testimonials: [
     {
       name: "Rahul Mehta",
@@ -93,14 +108,8 @@ export const sampleClient = {
       rating: 5,
     },
   ],
-  // New Section for Vertex & Nexus
-  bankAccount: {
-    bankName: "HDFC Bank Ltd",
-    accountName: "Elite Dental Care & Implant Centre",
-    accountNo: "50200012345678",
-    ifscCode: "HDFC0001234",
-    branch: "Alkapuri, Vadodara",
-  },
+
+  // ── Payment ────────────────────────────────────────────────────────────────
   payment: {
     upiId: "elitedental@upi",
     qrCode:
@@ -110,26 +119,21 @@ export const sampleClient = {
         name: "Google Pay",
         icon: "https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg",
         enabled: true,
-      },    
+      },
     ],
     tagline: "SAFE & SECURE HEALTHCARE PAYMENTS",
+
+    // Bank details — Vertex & Nexus display this under payment.bankDetails
+    bankDetails: {
+      bankName: "HDFC Bank Ltd",
+      accountName: "Elite Dental Care & Implant Centre",
+      accountNumber: "50200012345678",
+      ifscCode: "HDFC0001234",
+      branch: "Alkapuri, Vadodara",
+    },
   },
-  contact: [
-    {
-      address:
-        "Suite 204, Platinum Heights, Near Akshar Chowk, Vadodara, Gujarat",
-    },
-    { email: "info@elitedentalcare.com" },
-    { phone: "+91 98765 43210" },
-    { whatsapp: "+91 98765 43210" },
-    {
-      openingHours: [
-        "Mon - Fri: 10:00 AM - 06:30 PM",
-        "Saturday : By Appointment Only",
-        "Sunday: Close",
-      ],
-    },
-  ],
+
+  // ── Social Media ───────────────────────────────────────────────────────────
   social: {
     facebook: "https://facebook.com/elitedental",
     instagram: "https://instagram.com/elitedental",
