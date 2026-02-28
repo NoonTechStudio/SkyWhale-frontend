@@ -143,6 +143,7 @@ const Home = () => {
       >
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between">
+
             {/* Brand / Logo */}
             <div
               className="flex items-center gap-3 cursor-pointer group"
@@ -187,17 +188,17 @@ const Home = () => {
 
             {/* Desktop CTA */}
             <div className="hidden lg:flex items-center gap-3">
-              <a
-                href="/order"
+              <Link
+                to="/order"
                 className="px-5 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-700/30 hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105"
               >
                 Proceed with Form →
-              </a>
+              </Link>
             </div>
 
             {/* Mobile Toggle */}
             <button
-              className="lg:hidden relative z-[60] p-2.5 text-white bg-white/8 rounded-xl backdrop-blur-md border border-white/10 hover:bg-white/15 transition-all"
+              className="lg:hidden relative z-[110] p-2.5 text-white bg-white/10 rounded-xl backdrop-blur-md border border-white/10 hover:bg-white/20 transition-all"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -205,70 +206,70 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Mobile Full-Screen Menu */}
-        <div
-          className={`fixed inset-0 z-[100] bg-slate-950/99 backdrop-blur-2xl lg:hidden flex flex-col items-center justify-center transition-all duration-500 ease-in-out ${
-            mobileMenuOpen
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          }`}
-        >
-          {/* Close button */}
-          <button
-            className="absolute top-6 right-6 p-2.5 text-white bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <X size={22} />
-          </button>
+        {/* Mobile Full-Screen Overlay — rendered conditionally so it truly covers everything */}
+        {mobileMenuOpen && (
+          <div className="fixed top-0 left-0 w-screen h-screen z-[100] bg-slate-950 flex flex-col lg:hidden">
 
-          {/* Logo in mobile menu */}
-          <div className="absolute top-6 left-6 flex items-center gap-2">
-            <img
-              src={Logo}
-              alt="SkyWhale"
-              className="h-9 w-9 object-contain bg-white rounded-full p-0.5 border border-blue-400/30"
-            />
-            <span className="text-white font-black text-lg">SkyWhale</span>
-          </div>
-
-          {/* Nav items */}
-          <div className="flex flex-col items-center gap-3 w-full px-8">
-            {[
-              { label: "Features", href: "#features" },
-              { label: "How It Works", href: "#how-it-works" },
-              { label: "Packages", href: "#pricing" },
-              { label: "Testimonials", href: "#testimonials" },
-              { label: "Contact", href: "#contact" },
-            ].map((item, i) => (
-              <a
-                key={item.label}
-                href={item.href}
+            {/* Header row */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-white/8 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <img
+                  src={Logo}
+                  alt="SkyWhale"
+                  className="h-9 w-9 object-contain bg-white rounded-full p-0.5 border border-blue-400/30"
+                />
+                <div className="flex flex-col leading-none">
+                  <span className="text-white font-black text-base">SkyWhale</span>
+                  <span className="text-[9px] uppercase tracking-widest text-blue-400/70 font-semibold mt-0.5">
+                    Scale Your Business
+                  </span>
+                </div>
+              </div>
+              <button
+                className="p-2.5 text-white bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`w-full text-center py-4 text-xl font-black text-slate-300 hover:text-white border border-white/8 rounded-2xl hover:bg-white/5 hover:border-blue-500/40 transition-all duration-300 ${
-                  mobileMenuOpen
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-6 opacity-0"
-                }`}
-                style={{ transitionDelay: `${i * 70}ms` }}
               >
-                {item.label}
-              </a>
-            ))}
+                <X size={20} />
+              </button>
+            </div>
 
-            <a
-              href="#how-it-works"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`w-full text-center py-4 text-xl font-black text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg shadow-blue-700/30 transition-all duration-300 mt-2 ${
-                mobileMenuOpen
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-6 opacity-0"
-              }`}
-              style={{ transitionDelay: `${5 * 70}ms` }}
-            >
-              Proceed with Form →
-            </a>
+            {/* Nav links — centred vertically */}
+            <div className="flex-1 flex flex-col justify-center px-6 gap-3 overflow-y-auto py-8">
+              {[
+                { label: "Features",     href: "#features",     emoji: "✨" },
+                { label: "How It Works", href: "#how-it-works", emoji: "📋" },
+                { label: "Packages",     href: "#pricing",      emoji: "💎" },
+                { label: "Testimonials", href: "#testimonials", emoji: "⭐" },
+                { label: "Contact",      href: "#contact",      emoji: "📞" },
+              ].map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/8 bg-white/4 hover:bg-white/10 hover:border-blue-500/40 transition-all duration-200 active:scale-95"
+                >
+                  <span className="text-2xl">{item.emoji}</span>
+                  <span className="text-white font-bold text-lg">{item.label}</span>
+                  <span className="ml-auto text-slate-500 text-xl">›</span>
+                </a>
+              ))}
+            </div>
+
+            {/* CTA pinned to bottom */}
+            <div className="px-6 pb-10 pt-4 border-t border-white/8 shrink-0">
+              <Link
+                to="/order"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 py-4 text-base font-black text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg shadow-blue-900/50 hover:from-blue-500 hover:to-indigo-500 transition-all active:scale-95"
+              >
+                📝 Proceed with Form →
+              </Link>
+              <p className="text-center text-slate-600 text-xs font-medium mt-3">
+                Setup in 24 hrs · No credit card needed
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </nav>
       {/* Navigation Ends */}
 
@@ -1941,21 +1942,18 @@ const Home = () => {
 
           {/* CTA */}
           <div className="text-center">
-            <a
-              href="#how-it-works"
-              className="inline-flex items-center gap-3 bg-white text-blue-600 font-black text-lg px-10 py-4 rounded-full shadow-2xl hover:shadow-white/30 hover:scale-105 transition-all duration-300"
-            >
-              Fill the Form & Get Started <ArrowRight size={20} />
-            </a>
-            <p className="text-blue-200 text-sm font-medium mt-4">
-              No credit card required &nbsp;·&nbsp; Setup in 24 hrs
-              &nbsp;·&nbsp; 24/7 Support
-            </p>
-          </div>
+  <Link
+    to="/order"
+    className="inline-flex items-center gap-3 bg-white text-blue-600 font-black text-lg px-10 py-4 rounded-full shadow-2xl hover:shadow-white/30 hover:scale-105 transition-all duration-300"
+  >
+    Fill the Form & Get Started <ArrowRight size={20} />
+  </Link>
+  <p className="text-blue-200 text-sm font-medium mt-4">
+    No credit card required &nbsp;·&nbsp; Setup in 24 hrs &nbsp;·&nbsp; 24/7 Support
+  </p>
+</div>
         </div>
       </section>
-
-      {/* Footer */}
       {/* Footer */}
       <footer
         id="contact"
