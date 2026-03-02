@@ -1974,7 +1974,7 @@ const Home = () => {
               <img
                 src={Logo}
                 alt="SkyWhale Logo"
-                className="relative w-24 h-24 rounded-full border-4 border-white shadow-2xl shadow-blue-200 object-contain bg-white p-1"
+                className="relative w-32 h-32 rounded-full border-4 border-white shadow-2xl shadow-blue-200 object-contain bg-white p-1"
               />
             </div>
             <h2 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-500 tracking-tight mb-1">
