@@ -134,14 +134,14 @@ const AdminLogin = () => {
           </div>
         </div>
 
-        {/* Demo Credentials (remove in production) */}
+        {/* Demo Credentials (remove in production)
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
           <p className="text-sm font-semibold text-blue-800 mb-1">
             Demo Credentials:
           </p>
           <p className="text-sm text-blue-700">Email: skyywhale@gmail.com</p>
           <p className="text-sm text-blue-700">Password: [Your Password]</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
