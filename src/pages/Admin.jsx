@@ -581,8 +581,9 @@ const Admin = () => {
 
       if (result) {
         setGeneratedUrl(
-          result.url ||
-            `https://${result.settings?.subdomain || result.subdomain}.skywhale.in`,
+          result.client?.url ||
+            result.url ||
+            `https://${result.client?.subdomain || result.settings?.subdomain || result.subdomain}.skywhale.in`,
         );
 
         await fetchClients();
@@ -2605,7 +2606,7 @@ const Admin = () => {
                         <button
                           onClick={() =>
                             copyToClipboard(
-                              `https://${client.settings?.subdomain || client._id}.skywhale.in`,
+                              `https://${client.subdomain || client.settings?.subdomain || client._id}.skywhale.in`,
                             )
                           }
                           className={`p-2 rounded-lg transition-all ${
@@ -2841,7 +2842,7 @@ const Admin = () => {
                             <button
                               onClick={() =>
                                 copyToClipboard(
-                                  `https://${client.settings?.subdomain || client._id}.skywhale.in`,
+                                  `https://${client.subdomain || client.settings?.subdomain || client._id}.skywhale.in`,
                                 )
                               }
                               className={`p-2 rounded-xl transition-all ${
