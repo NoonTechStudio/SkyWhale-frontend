@@ -6,9 +6,17 @@ import VertexTemplate from "../templates/VertexTemplate";
 import NexusTemplate from "../templates/NexusTemplate";
 import { clientAPI } from "../services/api";
 
-const ClientCard = () => {
-  const { clientId } = useParams(); // Can be ID or subdomain
-  const navigate = useNavigate();
+const ClientCard = ({ subdomainOverride }) => {
+  const params = useParams();
+  const clientId = subdomainOverride || params.clientId;
+
+  // useNavigate may not work outside Router, so guard it
+  let navigate;
+  try {
+    navigate = useNavigate();
+  } catch {
+    navigate = () => (window.location.href = "/");
+  }
 
   const [clientData, setClientData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,12 +31,14 @@ const ClientCard = () => {
       try {
         let data;
 
-        // Check if it's a subdomain (no dashes, shorter)
-        if (clientId && !clientId.includes("-") && clientId.length < 20) {
-          // Try fetching by subdomain
+        if (subdomainOverride) {
+          // Always fetch by subdomain when coming from subdomain URL
+          data = await clientAPI.getBySubdomain(subdomainOverride);
+        } else if (clientId && !clientId.match(/^[a-f\d]{24}$/i)) {
+          // Not a MongoDB ID — treat as subdomain
           data = await clientAPI.getBySubdomain(clientId);
         } else {
-          // Try fetching by ID
+          // Fetch by MongoDB ID
           data = await clientAPI.getById(clientId);
         }
 
@@ -38,9 +48,8 @@ const ClientCard = () => {
         console.error("Error fetching client data:", err);
         setError("Client card not found or expired.");
 
-        // Auto-redirect to home after 3 seconds
         setTimeout(() => {
-          navigate("/");
+          window.location.href = "/";
         }, 3000);
       } finally {
         setLoading(false);
@@ -53,9 +62,8 @@ const ClientCard = () => {
       setError("No client ID provided");
       setLoading(false);
     }
-  }, [clientId, navigate]);
+  }, [clientId]);
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50 flex items-center justify-center">
@@ -72,7 +80,6 @@ const ClientCard = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-linear-to-br from-slate-50 to-red-50 flex items-center justify-center p-6">
@@ -86,7 +93,7 @@ const ClientCard = () => {
           <p className="text-slate-700 mb-6">{error}</p>
           <div className="space-y-4">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => (window.location.href = "/")}
               className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
             >
               <Home size={20} />
@@ -101,12 +108,8 @@ const ClientCard = () => {
     );
   }
 
-  // Render the correct template
   const renderTemplate = () => {
-    const templateProps = {
-      clientData: clientData,
-    };
-
+    const templateProps = { clientData };
     switch (template) {
       case "vertex":
         return <VertexTemplate {...templateProps} />;
@@ -121,8 +124,6 @@ const ClientCard = () => {
   return (
     <div className="client-card-page">
       {renderTemplate()}
-
-      {/* Admin Preview Banner (only in development) */}
       {import.meta.env.DEV && clientData && (
         <div className="fixed bottom-4 right-4 bg-black/80 text-white p-3 rounded-xl text-sm backdrop-blur-sm z-50">
           <div className="flex items-center gap-2">

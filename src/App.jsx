@@ -16,6 +16,21 @@ import ClientCard from "./pages/ClientCard";
 import OrderForm from "./pages/OrderForm";
 
 function App() {
+  // Detect if we're on a client subdomain e.g. hair-studio.skywhale.in
+  const hostname = window.location.hostname;
+  const parts = hostname.split(".");
+  // subdomain exists if more than 2 parts and not "www" or "api"
+  const isClientSubdomain =
+    parts.length > 2 &&
+    parts[0] !== "www" &&
+    parts[0] !== "api";
+  const subdomain = isClientSubdomain ? parts[0] : null;
+
+  // If on a client subdomain, render ClientCard directly without Router paths
+  if (subdomain) {
+    return <ClientCard subdomainOverride={subdomain} />;
+  }
+
   return (
     <Router>
       <Routes>
