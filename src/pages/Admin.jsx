@@ -2470,190 +2470,159 @@ const Admin = () => {
                 </button>
               </div>
             ) : viewMode === "grid" ? (
-              // Grid View
+              // Grid View - Redesigned
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredClients.map((client) => (
+                {filteredClients.map((client) => {
+                  const clientSubdomain = client.subdomain || client.settings?.subdomain;
+                  const clientUrl = `https://${clientSubdomain || client._id}.skywhale.in`;
+                  const previewUrl = `/card/${client._id}`;
+                  const templateInfo = templates.find((t) => t.id === client.template);
+
+                  return (
                   <div
                     key={client._id}
-                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105 ${
-                      isDarkMode ? "bg-gray-700/50" : "bg-white"
-                    } border-2 ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}
+                    className={`group relative rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
+                      isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-100 shadow-sm"
+                    }`}
                   >
-                    {/* Template Badge */}
-                    <div
-                      className={`absolute top-3 right-3 z-10 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r ${
-                        templates.find((t) => t.id === client.template)
-                          ?.gradient || "from-gray-500 to-gray-600"
-                      } text-white shadow-lg`}
-                    >
-                      {templates.find((t) => t.id === client.template)?.name ||
-                        client.template}
-                    </div>
-
-                    {/* Business Logo */}
-                    <div className="h-32 bg-gradient-to-br from-indigo-600 to-purple-600 p-6 flex items-center justify-center">
-                      {client.businessLogo ? (
-                        <img
-                          src={client.businessLogo}
-                          alt={client.businessName}
-                          className="w-20 h-20 rounded-xl object-cover border-4 border-white shadow-xl"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = ""; // Clear broken image
-                            e.target.style.display = "none";
-                          }}
-                        />
-                      ) : (
-                        <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-xl border-2 border-white flex items-center justify-center">
-                          <Building2 size={32} className="text-white" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Business Info */}
-                    <div className="p-6">
-                      <h3
-                        className={`font-bold text-lg mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}
-                      >
-                        {client.businessName}
-                      </h3>
-                      <p
-                        className={`text-sm mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                      >
-                        {client.ownerName}
-                      </p>
-
-                      {/* Business Type Badge */}
-                      <div
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold mb-4 ${
-                          client.businessType === "service"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-green-100 text-green-800"
-                        }`}
-                      >
-                        {client.businessType === "service"
-                          ? "💼 Service"
-                          : "🛍️ Product"}
+                    {/* Header Banner */}
+                    <div className={`relative h-28 bg-gradient-to-br ${templateInfo?.gradient || "from-indigo-500 to-purple-600"} p-4`}>
+                      {/* Template Badge */}
+                      <div className="absolute top-3 right-3 px-2.5 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-bold text-white border border-white/30">
+                        {templateInfo?.icon} {templateInfo?.name}
                       </div>
-
-                      {/* Contact Info Preview */}
-                      <div
-                        className={`space-y-2 text-sm border-t pt-4 ${
-                          isDarkMode ? "border-gray-600" : "border-gray-200"
-                        }`}
-                      >
-                        {client.phone && (
-                          <div className="flex items-center gap-2">
-                            <Phone
-                              size={14}
-                              className={
-                                isDarkMode ? "text-gray-500" : "text-gray-400"
-                              }
-                            />
-                            <span
-                              className={
-                                isDarkMode ? "text-gray-300" : "text-gray-600"
-                              }
-                            >
-                              {client.phone}
-                            </span>
+                      {/* Status dot */}
+                      <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-white/80 text-xs font-medium">Active</span>
+                      </div>
+                      {/* Logo */}
+                      <div className="absolute -bottom-8 left-5">
+                        {client.businessLogo ? (
+                          <img
+                            src={client.businessLogo}
+                            alt={client.businessName}
+                            className="w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-xl"
+                            onError={(e) => { e.target.style.display = "none"; }}
+                          />
+                        ) : (
+                          <div className={`w-16 h-16 rounded-2xl border-4 border-white shadow-xl flex items-center justify-center ${isDarkMode ? "bg-gray-700" : "bg-indigo-100"}`}>
+                            <Building2 size={24} className="text-indigo-600" />
                           </div>
                         )}
-                        {client.email && (
+                      </div>
+                    </div>
+
+                    {/* Body */}
+                    <div className="pt-10 px-5 pb-5">
+                      {/* Name & Type */}
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className={`font-bold text-base leading-tight ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                            {client.businessName}
+                          </h3>
+                          <p className={`text-sm mt-0.5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                            {client.ownerName}
+                          </p>
+                        </div>
+                        <span className={`shrink-0 mt-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                          client.businessType === "service"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-emerald-100 text-emerald-700"
+                        }`}>
+                          {client.businessType === "service" ? "Service" : "Product"}
+                        </span>
+                      </div>
+
+                      {/* Contact */}
+                      <div className={`space-y-1.5 text-xs py-3 border-y ${isDarkMode ? "border-gray-700" : "border-gray-100"}`}>
+                        {client.contact?.phone || client.phone ? (
                           <div className="flex items-center gap-2">
-                            <Mail
-                              size={14}
-                              className={
-                                isDarkMode ? "text-gray-500" : "text-gray-400"
-                              }
-                            />
-                            <span
-                              className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
-                            >
-                              {client.email}
+                            <Phone size={12} className="text-indigo-400 shrink-0" />
+                            <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
+                              {client.contact?.phone || client.phone}
+                            </span>
+                          </div>
+                        ) : null}
+                        {client.contact?.email || client.email ? (
+                          <div className="flex items-center gap-2">
+                            <Mail size={12} className="text-indigo-400 shrink-0" />
+                            <span className={`truncate ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                              {client.contact?.email || client.email}
+                            </span>
+                          </div>
+                        ) : null}
+                        {clientSubdomain && (
+                          <div className="flex items-center gap-2">
+                            <Globe size={12} className="text-indigo-400 shrink-0" />
+                            <span className="text-indigo-500 truncate text-xs font-medium">
+                              {clientSubdomain}.skywhale.in
                             </span>
                           </div>
                         )}
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-2 mt-4">
+                      <div className="grid grid-cols-3 gap-2 mt-3">
                         <a
-                          href={`/preview/${client._id}`}
+                          href={previewUrl}
                           target="_blank"
-                          className={`flex-1 p-2 rounded-lg flex items-center justify-center gap-1 transition-all ${
-                            isDarkMode
-                              ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
-                          title="Preview"
+                          rel="noopener noreferrer"
+                          className="flex flex-col items-center gap-1 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all"
                         >
-                          <Eye size={16} />
-                          <span className="text-xs">Preview</span>
+                          <Eye size={15} />
+                          <span className="text-xs font-semibold">Preview</span>
                         </a>
                         <button
                           onClick={() => handleEdit(client)}
-                          className={`flex-1 p-2 rounded-lg flex items-center justify-center gap-1 transition-all ${
+                          className={`flex flex-col items-center gap-1 py-2.5 rounded-xl transition-all ${
                             isDarkMode
-                              ? "bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30"
-                              : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
-                          }`}
-                          title="Edit"
-                        >
-                          <Edit2 size={16} />
-                          <span className="text-xs">Edit</span>
-                        </button>
-                        <button
-                          onClick={() =>
-                            copyToClipboard(
-                              `https://${client.subdomain || client.settings?.subdomain || client._id}.skywhale.in`,
-                            )
-                          }
-                          className={`p-2 rounded-lg transition-all ${
-                            isDarkMode
-                              ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                              ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
-                          title="Copy URL"
                         >
-                          <Copy size={16} />
+                          <Edit2 size={15} />
+                          <span className="text-xs font-semibold">Edit</span>
                         </button>
                         <button
-                          onClick={() => handleDelete(client._id)}
-                          className={`p-2 rounded-lg transition-all ${
+                          onClick={() => copyToClipboard(clientUrl)}
+                          className={`flex flex-col items-center gap-1 py-2.5 rounded-xl transition-all ${
                             isDarkMode
-                              ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                              : "bg-red-50 text-red-600 hover:bg-red-100"
+                              ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
-                          title="Delete"
                         >
-                          <Trash2 size={16} />
+                          <Copy size={15} />
+                          <span className="text-xs font-semibold">Copy URL</span>
                         </button>
                       </div>
 
-                      {/* Template Change Option */}
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <label
-                          className={`block text-xs font-semibold mb-2 ${
-                            isDarkMode ? "text-gray-400" : "text-gray-600"
-                          }`}
-                        >
-                          Change Template:
-                        </label>
-                        <div className="flex gap-1">
+                      {/* Template Switch + Delete */}
+                      <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-100"}`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                            Switch Template
+                          </span>
+                          <button
+                            onClick={() => handleDelete(client._id)}
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-all text-xs font-semibold"
+                          >
+                            <Trash2 size={12} />
+                            Delete
+                          </button>
+                        </div>
+                        <div className="flex gap-1.5">
                           {templates.map((t) => (
                             <button
                               key={t.id}
-                              onClick={() =>
-                                handleTemplateChange(client._id, t.id)
-                              }
+                              onClick={() => handleTemplateChange(client._id, t.id)}
                               disabled={client.template === t.id}
-                              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
                                 client.template === t.id
-                                  ? `bg-gradient-to-r ${t.gradient} text-white cursor-default`
+                                  ? `bg-gradient-to-r ${t.gradient} text-white shadow-sm`
                                   : isDarkMode
-                                    ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                    ? "bg-gray-700 text-gray-400 hover:bg-gray-600"
+                                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                               }`}
                             >
                               {t.name}
@@ -2663,7 +2632,8 @@ const Admin = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               // List View
@@ -2715,7 +2685,10 @@ const Admin = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredClients.map((client) => (
+                    {filteredClients.map((client) => {
+                      const clientSubdomain = client.subdomain || client.settings?.subdomain;
+                      const clientUrl = `https://${clientSubdomain || client._id}.skywhale.in`;
+                      return (
                       <tr
                         key={client._id}
                         className={`border-b transition-all hover:bg-opacity-50 ${
@@ -2817,8 +2790,9 @@ const Admin = () => {
                         <td className="p-4">
                           <div className="flex gap-2">
                             <a
-                              href={`/preview/${client._id}`}
+                              href={`/card/${client._id}`}
                               target="_blank"
+                              rel="noopener noreferrer"
                               className={`p-2 rounded-xl transition-all ${
                                 isDarkMode
                                   ? "text-blue-400 hover:bg-blue-500/20"
@@ -2840,11 +2814,7 @@ const Admin = () => {
                               <Edit2 size={18} />
                             </button>
                             <button
-                              onClick={() =>
-                                copyToClipboard(
-                                  `https://${client.subdomain || client.settings?.subdomain || client._id}.skywhale.in`,
-                                )
-                              }
+                              onClick={() => copyToClipboard(clientUrl)}
                               className={`p-2 rounded-xl transition-all ${
                                 isDarkMode
                                   ? "text-gray-400 hover:bg-gray-600"
@@ -2868,7 +2838,8 @@ const Admin = () => {
                           </div>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
