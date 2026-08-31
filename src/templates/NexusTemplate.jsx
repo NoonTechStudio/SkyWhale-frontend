@@ -67,7 +67,7 @@ const NexusTemplate = ({ clientData = sampleClient }) => {
     if (!url) return "https://via.placeholder.com/300";
     if (typeof url !== "string") return url;
     if (url.startsWith("http") || url.startsWith("/") || url.startsWith("data:")) return url;
-    return `http://localhost:5001${url}`;
+    return `${import.meta.env.VITE_API_URL || "http://localhost:5001"}${url}`;
   };
 
   const handleImageError = (id) => setImageErrors(prev => ({ ...prev, [id]: true }));

@@ -177,7 +177,7 @@ const AuraTemplate = ({ clientData = sampleClient }) => {
       url.startsWith("data:")
     )
       return url;
-    return `http://localhost:5001${url}`;
+    return `${import.meta.env.VITE_API_URL || "http://localhost:5001"}${url}`;
   };
 
   return (

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Lock, Mail, LogIn, AlertCircle } from "lucide-react";
+import { authAPI } from "../services/api";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -8,6 +9,9 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const expired = new URLSearchParams(location.search).get("expired") === "1";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -15,30 +19,15 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5001"}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed");
-      }
+      const data = await authAPI.login(email, password);
 
       // Save token and user info
       localStorage.setItem("skywhale_token", data.token);
       localStorage.setItem("skywhale_user", JSON.stringify(data.user));
 
-      // Redirect to admin dashboard or the page they tried to visit
+      // Redirect to the page they were trying to reach, or the dashboard
       const from = location.state?.from?.pathname || "/admin";
       navigate(from, { replace: true });
-
-      // Redirect to admin dashboard
-      navigate("/admin");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -62,6 +51,15 @@ const AdminLogin = () => {
 
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
+          {expired && !error && (
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3">
+              <AlertCircle className="text-amber-600" size={20} />
+              <span className="text-amber-700 font-medium">
+                Your session expired. Please sign in again.
+              </span>
+            </div>
+          )}
+
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
               <AlertCircle className="text-red-600" size={20} />

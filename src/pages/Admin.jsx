@@ -79,10 +79,11 @@ import {
   FileText,
   Settings2,
 } from "lucide-react";
-import { clientAPI } from "../services/api";
+import { clientAPI, API_BASE } from "../services/api";
 
-// Session timeout in milliseconds (30 minutes)
-const SESSION_TIMEOUT = 30 * 60 * 1000;
+// Session timeout in milliseconds (2 hours) — long enough to fill in a full
+// client onboarding form without being kicked out mid-way.
+const SESSION_TIMEOUT = 2 * 60 * 60 * 1000;
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("add");
@@ -202,7 +203,7 @@ const Admin = () => {
 
       // Auto logout after timeout
       if (timeSinceLastActivity >= SESSION_TIMEOUT) {
-        handleLogout();
+        handleLogout("timeout");
       }
     }, 1000);
 
@@ -278,9 +279,8 @@ const Admin = () => {
 
   const getFullImageUrl = (url) => {
     if (!url) return null;
-    if (url.startsWith("http")) return url;
-    // Adjust this based on your backend URL
-    return `http://localhost:5001${url}`;
+    if (url.startsWith("http") || url.startsWith("data:")) return url;
+    return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
   };
 
   const businessTypes = [
@@ -647,10 +647,11 @@ const Admin = () => {
     setGalleryPreviews([]);
   };
 
-  const handleLogout = () => {
+  const handleLogout = (reason) => {
     localStorage.removeItem("skywhale_token");
     localStorage.removeItem("skywhale_user");
-    window.location.href = "/admin-login";
+    window.location.href =
+      reason === "timeout" ? "/admin-login?expired=1" : "/admin-login";
   };
 
   const copyToClipboard = (text) => {

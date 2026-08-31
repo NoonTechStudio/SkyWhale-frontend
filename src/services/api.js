@@ -1,215 +1,196 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+// Strip any trailing slash so we never build `https://host//api/...`
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001").replace(
+  /\/+$/,
+  "",
+);
 
-// Get auth token from localStorage
-const getAuthHeader = () => {
-  const token = localStorage.getItem("skywhale_token");
-  if (!token) {
-    console.warn("No auth token found in localStorage");
-    return {
-      // Don't set Content-Type for multipart/form-data
-    };
-  }
-  return {
-    Authorization: `Bearer ${token}`,
-    // Don't set Content-Type for multipart/form-data
-  };
+export { API_BASE };
+
+// ---------------------------------------------------------------------------
+// Auth helpers
+// ---------------------------------------------------------------------------
+
+export const getToken = () => localStorage.getItem("skywhale_token") || "";
+
+export const clearSession = () => {
+  localStorage.removeItem("skywhale_token");
+  localStorage.removeItem("skywhale_user");
 };
 
-// Handle API errors
+const redirectToLogin = () => {
+  if (typeof window !== "undefined" && !window.location.pathname.startsWith("/admin-login")) {
+    window.location.href = "/admin-login?expired=1";
+  }
+};
+
+// Thrown before a request is even made when there is no usable token.
+export class SessionExpiredError extends Error {
+  constructor(message = "Your session has expired. Please sign in again.") {
+    super(message);
+    this.name = "SessionExpiredError";
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Core fetch wrapper — the single place that attaches the Authorization header
+// ---------------------------------------------------------------------------
+
 const handleResponse = async (response) => {
-  // Check if response has JSON content
-  const contentType = response.headers.get("content-type");
-  if (!contentType || !contentType.includes("application/json")) {
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-    return null;
+  // If the request was redirected (e.g. http->https, apex<->www, missing/extra
+  // trailing slash on the API domain) the browser drops the Authorization
+  // header on the way, which the backend then reports as "No token".
+  // Surface that clearly instead of a confusing auth error.
+  if (response.redirected) {
+    throw new Error(
+      `Request was redirected to ${response.url} and lost its login token. ` +
+        `Check VITE_API_URL — it must point straight at the API with no ` +
+        `http→https or www redirect.`,
+    );
   }
 
-  const data = await response.json();
+  const contentType = response.headers.get("content-type") || "";
+  const isJson = contentType.includes("application/json");
+  const data = isJson ? await response.json() : null;
 
   if (!response.ok) {
-    // If unauthorized, clear token and redirect
-    if (response.status === 401) {
-      localStorage.removeItem("skywhale_token");
-      localStorage.removeItem("skywhale_user");
-      window.location.href = "/admin-login";
+    if (response.status === 401 || response.status === 403) {
+      clearSession();
+      redirectToLogin();
     }
-    throw new Error(data.error || `API Error: ${response.status}`);
+    const message =
+      (data && data.error) ||
+      (data && data.details) ||
+      `Request failed (${response.status} ${response.statusText})`;
+    throw new Error(message);
   }
 
   return data;
 };
 
-// Client API
-export const clientAPI = {
-  // Get all clients
-  getAll: async () => {
-    try {
-      const url = `${API_BASE}/api/clients`;
-      console.log("📡 Calling API URL:", url);
+/**
+ * authFetch — always used for admin (protected) endpoints.
+ * Guarantees the Authorization header is present, or fails fast with a clear
+ * message instead of sending "Bearer null" and getting a vague 401 back.
+ *
+ * @param {string} path  API path beginning with "/"
+ * @param {object} opts  { method, body, json, headers }
+ *                       - `json`: object -> sent as application/json
+ *                       - `body`: sent as-is (use for FormData)
+ */
+const authFetch = async (path, opts = {}) => {
+  const { method = "GET", headers = {}, body, json } = opts;
 
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("skywhale_token")}`,
-        },
-      });
+  const token = getToken();
+  if (!token) {
+    clearSession();
+    redirectToLogin();
+    throw new SessionExpiredError();
+  }
 
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Failed to fetch clients:", error);
-      throw error;
-    }
-  },
+  const finalHeaders = { Authorization: `Bearer ${token}`, ...headers };
+  let payload = body;
 
-  // Get single client by ID (public)
-  getPublic: async (id) => {
-    try {
-      const response = await fetch(`${API_BASE}/api/clients/public/id/${id}`);
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Failed to fetch public client:", error);
-      throw error;
-    }
-  },
+  if (json !== undefined) {
+    finalHeaders["Content-Type"] = "application/json";
+    payload = JSON.stringify(json);
+  }
+  // NOTE: never set Content-Type for FormData — the browser adds the
+  // multipart boundary itself.
 
-  // Get single client by ID (admin)
-  getById: async (id) => {
-    try {
-      const response = await fetch(`${API_BASE}/api/clients/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("skywhale_token")}`,
-        },
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Failed to fetch client by ID:", error);
-      throw error;
-    }
-  },
+  const response = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers: finalHeaders,
+    body: payload,
+  });
 
-  // Create new client with FormData (for file uploads)
-  create: async (formData) => {
-    try {
-      console.log("📤 Creating client with FormData");
-      const response = await fetch(`${API_BASE}/api/clients`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("skywhale_token")}`,
-        },
-        body: formData, // FormData handles Content-Type automatically
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Failed to create client:", error);
-      throw error;
-    }
-  },
-
-  // Update client with FormData
-  update: async (id, formData) => {
-    try {
-      const response = await fetch(`${API_BASE}/api/clients/${id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("skywhale_token")}`,
-        },
-        body: formData,
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Failed to update client:", error);
-      throw error;
-    }
-  },
-
-  // Delete client
-  delete: async (id) => {
-    try {
-      const response = await fetch(`${API_BASE}/api/clients/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("skywhale_token")}`,
-        },
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Failed to delete client:", error);
-      throw error;
-    }
-  },
-
-  // Get client by subdomain (public)
-  getBySubdomain: async (subdomain) => {
-    try {
-      const response = await fetch(
-        `${API_BASE}/api/clients/public/${subdomain}`,
-      );
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Failed to fetch client by subdomain:", error);
-      throw error;
-    }
-  },
+  return handleResponse(response);
 };
 
+// Public (no-auth) GET helper
+const publicFetch = async (path) => {
+  const response = await fetch(`${API_BASE}${path}`);
+  return handleResponse(response);
+};
+
+// ---------------------------------------------------------------------------
+// Client API
+// ---------------------------------------------------------------------------
+
+export const clientAPI = {
+  getAll: () => authFetch("/api/clients"),
+
+  getById: (id) => authFetch(`/api/clients/${id}`),
+
+  getPublic: (id) => publicFetch(`/api/clients/public/id/${id}`),
+
+  getBySubdomain: (subdomain) =>
+    publicFetch(`/api/clients/public/${subdomain}`),
+
+  // `data` may be a FormData (with files) or a plain object (simple field update)
+  create: (data) =>
+    authFetch("/api/clients", {
+      method: "POST",
+      ...(data instanceof FormData ? { body: data } : { json: data }),
+    }),
+
+  update: (id, data) =>
+    authFetch(`/api/clients/${id}`, {
+      method: "PUT",
+      ...(data instanceof FormData ? { body: data } : { json: data }),
+    }),
+
+  delete: (id) => authFetch(`/api/clients/${id}`, { method: "DELETE" }),
+};
+
+// ---------------------------------------------------------------------------
 // Auth API
+// ---------------------------------------------------------------------------
+
 export const authAPI = {
   login: async (email, password) => {
-    try {
-      const response = await fetch(`${API_BASE}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
+    const response = await fetch(`${API_BASE}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await handleResponse(response);
+    if (!data || !data.token) {
+      throw new Error("Login response did not include a token. Please try again.");
     }
+    return data;
   },
 
   register: async (email, password) => {
-    try {
-      const response = await fetch(`${API_BASE}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Registration failed:", error);
-      throw error;
-    }
+    const response = await fetch(`${API_BASE}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    return handleResponse(response);
   },
 
   logout: () => {
-    localStorage.removeItem("skywhale_token");
-    localStorage.removeItem("skywhale_user");
+    clearSession();
   },
 
   getCurrentUser: () => {
     const userStr = localStorage.getItem("skywhale_user");
-    return userStr ? JSON.parse(userStr) : null;
+    try {
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
+      return null;
+    }
   },
 };
 
+// ---------------------------------------------------------------------------
 // Payment API
+// ---------------------------------------------------------------------------
+
 export const paymentAPI = {
-  createOrder: async (clientId, amount, plan) => {
-    try {
-      const response = await fetch(`${API_BASE}/api/payments/create-order`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("skywhale_token")}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ clientId, amount, plan }),
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Payment order creation failed:", error);
-      throw error;
-    }
-  },
+  createOrder: (clientId, amount, plan) =>
+    authFetch("/api/payments/create-order", {
+      method: "POST",
+      json: { clientId, amount, plan },
+    }),
 };
