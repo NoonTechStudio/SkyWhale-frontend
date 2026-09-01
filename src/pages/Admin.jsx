@@ -158,6 +158,12 @@ const Admin = () => {
   const [logoPreview, setLogoPreview] = useState(null);
   const [qrPreview, setQrPreview] = useState(null);
   const [galleryPreviews, setGalleryPreviews] = useState([]);
+  // Gallery images already saved on the server (edit mode). URLs the admin
+  // keeps are sent back as `existingGallery`; removed ones are dropped.
+  const [existingGallery, setExistingGallery] = useState([]);
+
+  // Max gallery images per client (keep in sync with backend MAX_GALLERY)
+  const MAX_GALLERY = 30;
 
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -394,6 +400,18 @@ const Admin = () => {
   // Handle gallery images upload
   const handleGalleryUpload = (e) => {
     const files = Array.from(e.target.files);
+    const totalAfter =
+      existingGallery.length + form.gallery.length + files.length;
+    if (totalAfter > MAX_GALLERY) {
+      setError(
+        `You can have at most ${MAX_GALLERY} gallery images (currently ${
+          existingGallery.length + form.gallery.length
+        }). Remove some before adding more.`,
+      );
+      e.target.value = "";
+      return;
+    }
+
     const newGallery = [...form.gallery, ...files];
     setForm({ ...form, gallery: newGallery });
 
@@ -407,14 +425,20 @@ const Admin = () => {
       };
       reader.readAsDataURL(file);
     });
+    e.target.value = "";
   };
 
-  // Remove gallery image
+  // Remove a not-yet-uploaded gallery image
   const removeGalleryImage = (index) => {
     const newGallery = form.gallery.filter((_, i) => i !== index);
     const newPreviews = galleryPreviews.filter((_, i) => i !== index);
     setForm({ ...form, gallery: newGallery });
     setGalleryPreviews(newPreviews);
+  };
+
+  // Remove an already-saved gallery image (edit mode)
+  const removeExistingGalleryImage = (index) => {
+    setExistingGallery(existingGallery.filter((_, i) => i !== index));
   };
 
   // Handle working hours change
@@ -475,36 +499,78 @@ const Admin = () => {
   // Edit client handler
   const handleEdit = (client) => {
     setEditingClient(client);
+
+    // The API returns contact details nested under `client.contact`; fall back
+    // to any flat fields just in case the shape changes.
+    const contact = client.contact || {};
+    const pay = client.payment || {};
+    const bank = pay.bankDetails || {};
+
+    const hours =
+      contact.openingHours?.length
+        ? contact.openingHours
+        : client.workingHours?.length
+          ? client.workingHours
+          : form.workingHours;
+
     setForm({
       businessName: client.businessName || "",
       businessLogo: null,
       ownerName: client.ownerName || "",
       ownerTitle: client.ownerTitle || "",
       tagline: client.tagline || "",
-      phone: client.phone || "",
-      whatsapp: client.whatsapp || "",
-      email: client.email || "",
-      address: client.address || "",
-      googleMapsUrl: client.googleMapsUrl || "",
+      phone: contact.phone ?? client.phone ?? "",
+      whatsapp: contact.whatsapp ?? client.whatsapp ?? "",
+      email: contact.email ?? client.email ?? "",
+      address: contact.address ?? client.address ?? "",
+      googleMapsUrl: contact.googleMapsUrl ?? client.googleMapsUrl ?? "",
       businessType: client.businessType || "service",
-      workingHours: client.workingHours || form.workingHours,
-      social: client.social || form.social,
+      workingHours: hours.map((h) => ({
+        day: h.day,
+        open: h.open || "09:00",
+        close: h.close || "18:00",
+        closed: !!h.closed,
+      })),
+      social: {
+        instagram: client.social?.instagram || "",
+        facebook: client.social?.facebook || "",
+        linkedin: client.social?.linkedin || "",
+        youtube: client.social?.youtube || "",
+      },
       items: client.items?.length
-        ? client.items
+        ? client.items.map((it) => ({
+            name: it.name || "",
+            description: it.description || "",
+            price: it.price || "",
+          }))
         : [{ name: "", description: "", price: "" }],
       gallery: [],
-      payment: client.payment || form.payment,
+      payment: {
+        upiId: pay.upiId || "",
+        qrCode: pay.qrCode || null,
+        acceptedMethods: pay.acceptedMethods || [],
+        bankDetails: {
+          accountHolder: bank.accountHolder || "",
+          accountNumber: bank.accountNumber || "",
+          ifscCode: bank.ifscCode || "",
+          bankName: bank.bankName || "",
+          accountType: bank.accountType || "current",
+        },
+      },
       template: client.template || "aura",
     });
 
-    // Set previews if images exist
-    if (client.businessLogo) {
-      setLogoPreview(getFullImageUrl(client.businessLogo));
-    }
+    // Existing gallery images (edit mode)
+    setExistingGallery(
+      (client.gallery || [])
+        .map((g) => (typeof g === "string" ? g : g && g.url))
+        .filter(Boolean),
+    );
+    setGalleryPreviews([]);
 
-    if (client.payment?.qrCode) {
-      setQrPreview(getFullImageUrl(client.payment.qrCode));
-    }
+    // Set previews if images exist
+    setLogoPreview(client.businessLogo ? getFullImageUrl(client.businessLogo) : null);
+    setQrPreview(pay.qrCode ? getFullImageUrl(pay.qrCode) : null);
 
     setActiveTab("add");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -535,6 +601,15 @@ const Admin = () => {
     setSuccess("");
 
     try {
+      const totalGallery = existingGallery.length + form.gallery.length;
+      if (totalGallery > MAX_GALLERY) {
+        setError(
+          `Too many gallery images (${totalGallery}). The maximum is ${MAX_GALLERY} — please remove some.`,
+        );
+        setLoading(false);
+        return;
+      }
+
       const formData = new FormData();
 
       // Append all form fields
@@ -570,7 +645,9 @@ const Admin = () => {
 
       let result;
       if (editingClient) {
-        // Update existing client
+        // Tell the backend which already-saved gallery images to keep.
+        // (Logo / QR are preserved automatically when no new file is uploaded.)
+        formData.append("existingGallery", JSON.stringify(existingGallery));
         result = await clientAPI.update(editingClient._id, formData);
         setSuccess("Client updated successfully!");
       } else {
@@ -645,6 +722,7 @@ const Admin = () => {
     setLogoPreview(null);
     setQrPreview(null);
     setGalleryPreviews([]);
+    setExistingGallery([]);
   };
 
   const handleLogout = (reason) => {
@@ -1901,10 +1979,52 @@ const Admin = () => {
                       <p
                         className={`text-xs mt-2 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}
                       >
-                        You can select multiple images. Recommended size:
-                        800x600px
+                        You can select multiple images (up to {MAX_GALLERY}{" "}
+                        total). Recommended size: 800x600px.{" "}
+                        {(existingGallery.length > 0 ||
+                          form.gallery.length > 0) &&
+                          `Currently ${
+                            existingGallery.length + form.gallery.length
+                          }/${MAX_GALLERY}.`}
                       </p>
                     </div>
+
+                    {existingGallery.length > 0 && (
+                      <div>
+                        <p
+                          className={`text-xs font-semibold mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        >
+                          Current images (click × to remove)
+                        </p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {existingGallery.map((url, index) => (
+                            <div
+                              key={url + index}
+                              className="relative group"
+                            >
+                              <img
+                                src={getFullImageUrl(url)}
+                                alt={`Saved ${index + 1}`}
+                                className={`w-full h-32 object-cover rounded-xl border-2 ${
+                                  isDarkMode
+                                    ? "border-gray-600"
+                                    : "border-gray-200"
+                                }`}
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  removeExistingGalleryImage(index)
+                                }
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {galleryPreviews.length > 0 && (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
