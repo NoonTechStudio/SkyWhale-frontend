@@ -1,16 +1,8 @@
 {
   "rewrites": [
-    {
-      "source": "/:path(.*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*([Ww]hats[Aa]pp|facebookexternalhit|[Ff]acebot|[Tt]witterbot|[Ss]lackbot|Slack-ImgProxy|LinkedInBot|[Tt]elegram[Bb]ot|[Dd]iscordbot|Pinterest|redditbot|[Gg]ooglebot|Google-InspectionTool|GoogleOther|bingbot|[Aa]pplebot|SkypeUriPreview|vkShare|W3C_Validator|Embedly|Iframely|nuzzel|Bitrix|outbrain|Yahoo Link Preview).*"
-        }
-      ],
-      "destination": "/api/render?path=/:path"
-    },
+    { "source": "/", "destination": "/api/render?path=/" },
+    { "source": "/card/:id", "destination": "/api/render?path=/card/:id" },
+    { "source": "/c/:slug", "destination": "/api/render?path=/c/:slug" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
